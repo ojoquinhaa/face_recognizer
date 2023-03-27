@@ -1,52 +1,64 @@
-import tkinter as tk
 from cv2 import (
     VideoCapture, cvtColor, COLOR_BGR2RGB, rectangle, imshow, waitKey, destroyAllWindows
 )
 from face_recognition import face_locations, face_encodings
 from conn import conn, commit
-
+import tkinter as tk
+from FaceRecognizer import FaceRecognizer
+from datetime import datetime
+from time import sleep
 class App:
     def __init__(self, master: tk.Tk, status:str="") -> None:
-        self.root: tk.Tk = master
-        self.status: str = status
-        self.run()
+        self.root: tk.Tk = master # Criando o root
+        self.status: str = status # Status de resultado
+        self.run() # Rodando a classe
     
     def font(self, size: int) -> tuple:
-        return ("Arial", size, "bold")
+        return ("Arial", size, "bold") # Configurações da fonte
     
     def new(self):
-        for child in self.root.winfo_children(): child.destroy()
-        NewFace(master=self.root)
+        for child in self.root.winfo_children(): child.destroy() # Apaga todas os elementos já na tela
+        NewFace(master=self.root) # Adiciona os elementos de nova face
+
+    def startRecognizer(self):
+        self.root.destroy() # Fecha o programa 
+        FaceRecognizer(cb=lambda: sleep(2)) # Inicia o reconhecimento facial
 
     def run(self) -> None:
+        # Configurando o root
         self.root.title("Face recognizer - Ojoquinhaa")
         self.root.geometry("400x125")
         self.root.resizable(False, False)
         self.root.configure(background="#332D2D")
 
+        # Adicionando um titulo
         title = tk.Label(master=self.root,text="INDENTIFICADOR DE ROSTOS",background="#332D2D",foreground="#FDFDFD")
         title.pack()
         title.configure(font=self.font(size=15))
         title.place(x=50, y=10)
 
+        # Botão para a classe de nova face
         newFaceButton = tk.Button(master=self.root,text="Novo",width=10,height=2,
         background="#3B71CA",fg="#ffffff",command=lambda:self.new())
         newFaceButton.pack()
         newFaceButton.place(x=25,y=50)
         newFaceButton.configure(font=self.font(size=10))
 
+        # Botão para iniciar o reconhecimento facial
         initButton = tk.Button(master=self.root,text="Iniciar",width=10,height=2,
-        background="#FBFBFB",foreground="#000000")
+        background="#FBFBFB",foreground="#000000",command=self.startRecognizer)
         initButton.pack()
         initButton.place(x=150, y=50)
         initButton.configure(font=self.font(size=10))
 
+        # Botão para fechar o programa
         exitButton = tk.Button(master=self.root,text="Sair",width=10,height=2,
         background="#DC4C64",foreground="#ffffff",command=self.root.destroy)
         exitButton.pack()
         exitButton.place(x=275, y=50)
         exitButton.configure(font=self.font(size=10))
 
+        # Tratamento de erros e retornando respostas
         if self.status == "saved":
             self.root.geometry("400x150")
             statusLabel = tk.Label(
@@ -59,17 +71,18 @@ class App:
 
 class NewFace:
     def __init__(self, master: tk.Tk) -> None:
-        self.root = master
-        self.encoding = ""
+        self.root = master # iniciando o root
+        self.encoding = "" # preparando o encoding
 
+        # inputs
         self.emailEntry = None
         self.nameEntry = None
         self.cpfEntry = None
         self.error = None
-        self.run()
+        self.run() # Rodando
 
     def font(self, size: int, type: str = "normal") -> tuple:
-        return ("Arial", size, type)
+        return ("Arial", size, type) # Configurações de fonte
 
     def run(self) -> None:
         # Configurações da aplicação
@@ -141,8 +154,8 @@ class NewFace:
         self.root.mainloop()
 
     def exit(self,status:str=None):
-       for child in self.root.winfo_children(): child.destroy()
-       App(master=self.root,status=status)
+       for child in self.root.winfo_children(): child.destroy() # Destroi os elementos no root
+       App(master=self.root) # Escreve os elementos iniciais
 
     def saveFace(self):
         email = self.emailEntry.get()
